@@ -1,0 +1,124 @@
+---
+# tasks file for syncthing
+- name: INSTALL | Download and install Syncthing from webinstall.dev/syncthing
+  ansible.builtin.shell:
+    cmd: curl -sS https://webinstall.dev/syncthing | bash
+    creates: $HOME/.local/bin/syncthing
+
+- name: INSTALL | Install Serviceman
+  ansible.builtin.command:
+    cmd: webi serviceman
+    creates: $HOME/.local/bin/serviceman
+
+- name: INSTALL | Create Syncthing config directory
+  ansible.builtin.file:
+    path: "{{ syncthing_config_dir }}"
+    state: directory
+
+- name: INSTALL | Check if Syncthing has already been setup
+  ansible.builtin.command:
+    cmd: "ls {{ syncthing_config_dir }}"
+  changed_when: False
+  register: SYNCTHING_CONFIG_DIR
+
+- name: INSTALL | Add Syncthing services
+  ansible.builtin.command:
+    cmd: env PATH="$PATH" serviceman add --user --name syncthing -- syncthing --home "{{ syncthing_config_dir }}"
+  when: SYNCTHING_CONFIG_DIR.stdout == ""
+
+- name: INSTALL | Enable Syncthing on login
+  ansible.builtin.systemd:
+    daemon_reload: True
+    name: syncthing
+    scope: user
+    enabled: True
+
+- name: CONFIGURE | Remove default folder from Syncthing
+  community.general.xml:
+    path: "{{ syncthing_config_dir }}/config.xml"
+    xpath: /configuration/folder
+    attribute: id
+    value: 'default'
+    state: absent
+  notify: Restart Syncthing service for the user
+
+- name: CONFIGURE | Delete default folder from system
+  ansible.builtin.file:
+    path: $HOME/Sync
+    state: absent
+  when: SYNCTHING_CONFIG_DIR.stdout == ""
+  notify: Restart Syncthing service for the user
+
+- name: CONFIGURE | Prevent Syncthing starting the browser on login
+  community.general.xml:
+    path: "{{ syncthing_config_dir }}/config.xml"
+    xpath: /configuration/options/startBrowser
+    value: 'false'
+  notify: Restart Syncthing service for the user
+
+- name: CONFIGURE | Change minimum free disk space to set amount
+  community.general.xml:
+    path: "{{ syncthing_config_dir }}/config.xml"
+    xpath: /configuration/options/minHomeDiskFree
+    value: "{{ minimum_free_disk_percentage }}"
+  notify: Restart Syncthing service for the user
+
+- name: CONFIGURE | Change GUI to use dark theme
+  community.general.xml:
+    path: "{{ syncthing_config_dir }}/config.xml"
+    xpath: /configuration/gui/theme
+    value: 'dark'
+  notify: Restart Syncthing service for the user
+
+- name: CONFIGURE | Change GUI to use HTTPS
+  community.general.xml:
+    path: "{{ syncthing_config_dir }}/config.xml"
+    xpath: /configuration/gui
+    attribute: tls
+    value: 'true'
+  notify: Restart Syncthing service for the user
+
+- name: CONFIGURE | Mark anynoumous usage reporting message as seen
+  community.general.xml:
+    path: "{{ syncthing_config_dir }}/config.xml"
+    xpath: /configuration/options/urSeen
+    value: '3'
+  notify: Restart Syncthing service for the user
+
+- name: CONFIGURE | Decline anonymous usage reporting
+  community.general.xml:
+    path: "{{ syncthing_config_dir }}/config.xml"
+    xpath: /configuration/options/urAccepted
+    value: '-1'
+  notify: Restart Syncthing service for the user
+
+- name: CONFIGURE | Setup default simple versioning
+  community.general.xml:
+    path: "{{ syncthing_config_dir }}/config.xml"
+    xpath: /configuration/defaults/folder/versioning
+    attribute: 'type'
+    value: 'simple'
+  notify: Restart Syncthing service for the user
+
+- name: CONFIGURE | Set default simple versioning parameters
+  community.general.xml:
+    path: "{{ syncthing_config_dir }}/config.xml"
+    xpath: /configuration/defaults/folder/versioning
+    set_children:
+      - param:
+          key: 'cleanoutDays'
+          val: '0'
+      - param:
+          key: 'keep'
+          val: '5'
+      - cleanupIntervalS: '3600'
+      - fsPath
+      - fsType: 'basic'
+  notify: Restart Syncthing service for the user
+
+- name: CONFIGURE | Set default minimum free disk space to set amount
+  community.general.xml:
+    path: "{{ syncthing_config_dir }}/config.xml"
+    xpath: /configuration/defaults/folder/minDiskFree
+    value: "{{ minimum_free_disk_percentage }}"
+  notify: Restart Syncthing service for the user

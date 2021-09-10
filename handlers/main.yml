@@ -1,0 +1,6 @@
+---
+- name: Restart Syncthing service for the user
+  ansible.builtin.systemd:
+    name: syncthing
+    scope: user
+    state: restarted
