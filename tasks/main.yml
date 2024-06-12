@@ -38,22 +38,22 @@
   tags:
     - configure
   block:
-    - name: CONFIGURE | Ensure default folder is removed from syncthing
-      notify: Restart Syncthing service for the user
-      register: default_folder
-      community.general.xml:
-        path: "{{ syncthing_config_dir }}/config.xml"
-        xpath: /configuration/folder
-        attribute: id
-        value: 'default'
-        state: absent
-    
-    - name: CONFIGURE | Delete default folder from system
-      notify: Restart Syncthing service for the user
-      when: default_folder.changed
-      ansible.builtin.file:
-        path: $HOME/Sync
-        state: absent
+    # - name: CONFIGURE | Ensure default folder is removed from syncthing
+    #   notify: Restart Syncthing service for the user
+    #   register: default_folder
+    #   community.general.xml:
+    #     path: "{{ syncthing_config_dir }}/config.xml"
+    #     xpath: /configuration/folder
+    #     attribute: id
+    #     value: 'default'
+    #     state: absent
+    # 
+    # - name: CONFIGURE | Delete default folder from system
+    #   notify: Restart Syncthing service for the user
+    #   when: default_folder.changed
+    #   ansible.builtin.file:
+    #     path: $HOME/Sync
+    #     state: absent
     
     - name: CONFIGURE | Prevent Syncthing starting the browser on login
       community.general.xml:
