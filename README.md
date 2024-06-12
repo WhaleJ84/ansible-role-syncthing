@@ -38,7 +38,7 @@ Role Variables
 
 | Name | Type | Description | Default |
 | ---- | ---- | ----------- | ------- |
-| syncthing\_config\_dir | string | A path to state where the syncthing config file should be located | "$HOME/.config/syncthing" |
+| syncthing\_config\_dir | string | A path to state where the syncthing config file should be located | "$HOME/.local/state/syncthing" |
 | minumum\_free\_disk\_percentage | string | A numeric value to state the minimum percent of free disk space required for shared folders | 15 |
 
 Example Playbook
