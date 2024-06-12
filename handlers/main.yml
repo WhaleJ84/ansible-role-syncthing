@@ -4,3 +4,10 @@
     name: syncthing
     scope: user
     state: restarted
+
+- name: Update apt repository
+  become: True
+  changed_when: false
+  ansible.builtin.apt:
+    update_cache: true
+
