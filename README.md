@@ -21,6 +21,10 @@ roles:
     src: https://github.com/WhaleJ84/ansible-role-syncthing.git
     scm: git
 
+  - name: whalej84.lxml
+    src: https://github.com/WhaleJ84/ansible-role-lxml.git
+    scm: git
+
 collections:
   - community.general
 ```
