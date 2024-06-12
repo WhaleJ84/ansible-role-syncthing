@@ -6,6 +6,10 @@ Installs and configures Syncthing for the user.
 Requirements
 ------------
 
+The following roles are required:
+
+- whalej84.lxml
+
 The following collections are required:
 
 - community.general
