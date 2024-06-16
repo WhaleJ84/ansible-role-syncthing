@@ -78,7 +78,7 @@
       community.general.xml:
         path: "{{ syncthing_config_dir }}/config.xml"
         xpath: /configuration/gui/theme
-        value: 'dark'
+        value: 'default'
       notify: Restart Syncthing service for the user
     
         #- name: CONFIGURE | Change GUI to use HTTPS
