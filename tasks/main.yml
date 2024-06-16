@@ -52,6 +52,13 @@
       ansible.builtin.file:
         path: "{{ ansible_user_dir }}/Sync"
         state: absent
+
+    - name: CONFIGURE | Ensure set devices are present
+      notify: Restart Syncthing service for the user
+      with_items: "{{ devices }}"
+      community.general.xml:
+        path: "{{ syncthing_config_dir }}/config.xml"
+        xpath: "/configuration/device[@id='{{ item }}']"
     
     - name: CONFIGURE | Prevent Syncthing starting the browser on login
       community.general.xml:
