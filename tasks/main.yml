@@ -59,6 +59,7 @@
       community.general.xml:
         path: "{{ syncthing_config_dir }}/config.xml"
         xpath: "/configuration/device[@id='{{ item }}']"
+      when: devices is defined
     
     - name: CONFIGURE | Prevent Syncthing starting the browser on login
       community.general.xml:
@@ -133,3 +134,12 @@
         xpath: /configuration/defaults/folder/minDiskFree
         value: "{{ minimum_free_disk_percentage }}"
       notify: Restart Syncthing service for the user
+
+    - name: CONFIGURE | Ensure KeepassXC folder is present
+      with_dict: "{{ keepassxc }}"
+      when: keepassxc is defined
+      community.general.xml:
+        path: "{{ syncthing_config_dir }}/config.xml"
+        xpath: "/configuration/folder[@id='{{ keepassxc.id }}']"
+        attribute: "{{ item.key }}"
+        value: "{{ item.value }}"
