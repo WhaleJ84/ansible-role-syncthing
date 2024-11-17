@@ -32,6 +32,7 @@
         daemon_reload: True
         name: syncthing
         scope: user
+        state: started
         enabled: True
   
 - name: CONFIGURE | Syncthing
