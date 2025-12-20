@@ -51,7 +51,7 @@ This example playbook shows how I would use this role, with custom variables to 
 - hosts: localhost
   
   roles:
-    role: whalej84.syncthing
-    tags: [ syncthing ]
+    - role: whalej84.syncthing
+      tags: [ syncthing ]
 ```
 
