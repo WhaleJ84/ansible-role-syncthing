@@ -3,29 +3,27 @@
   tags:
     - install
   block:
-    - name: INSTALL | Ensure syncthing is in apt keyring
+    - name: INSTALL | Install syncthing apt repository
       become: True
-      ansible.builtin.apt_key:
-        url: https://syncthing.net/release-key.gpg
-        keyring: /etc/apt/keyrings/syncthing-archive-keyring.gpg
-        state: present
+      ansible.builtin.deb822_repository:
+        name: syncthing
+        types: deb
+        uris: https://apt.syncthing.net
+        suites: syncthing
+        components:
+          - "{{ syncthing_apt_candidate }}"
+        signed_by: https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x37C84554E7E0A261E4F76E1ED26E6ED000654A3E
+        architectures:
+          - "{{ 'amd64' if ansible_architecture == 'x86_64' else null }}"
+      when: ansible_facts['distribution'] == "Ubuntu"
+      register: keychain
 
-    - name: INSTALL | Ensure syncthing is enabled in apt sources
-      become: True
-      notify: Update apt repository
-      ansible.builtin.apt_repository:
-        repo: "deb [signed-by=/etc/apt/keyrings/syncthing-archive-keyring.gpg] https://apt.syncthing.net/ syncthing stable"
-        state: present
-
-    - name: INSTALL | Update apt if needed
-      ansible.builtin.meta: flush_handlers
-
-    - name: INSTALL | Ensure syncthing is installed
-      become: True
-      notify: Restart Syncthing service for the user
+    - name: INSTALL | Install syncthing from package repository
+      become: true
       ansible.builtin.apt:
         name: syncthing
         state: present
+        update_cache: "{{ true if keychain.changed else false }}"
 
     - name: INSTALL | Ensure syncthing is enabled on login
       ansible.builtin.systemd:
