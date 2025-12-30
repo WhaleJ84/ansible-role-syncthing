@@ -52,6 +52,8 @@ This example playbook shows how I would use this role, with custom variables to 
   
   roles:
     - role: whalej84.syncthing
+      vars:
+        syncthing_apt_candidate: stable-v2
       tags: [ syncthing ]
 ```
 
